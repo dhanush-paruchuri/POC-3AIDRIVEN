@@ -6,47 +6,49 @@ adaptive_context_task:
     🎯 STAGE 1: ADAPTIVE CONTEXT ANALYSIS
     Use "Adaptive Business Context Analyzer" with question: '{question}'
     
-    The AI will:
-    - Analyze query complexity (SIMPLE vs COMPLEX) using Claude 4 intelligence
-    - For SIMPLE queries: Skip deep analysis, proceed with efficiency
-    - For COMPLEX queries: Search BusinessContext collection for enrichment
-    - Apply AI-driven query enrichment using discovered business context
-    - Extract contextual warnings about data quality issues
+    The AI will leverage these dataset fields for enhanced context:
+    - description: Full semantic content for query understanding
+    - business_purpose: Specific use cases and analytical guidance
+    - tags: Quick categorization for intent matching
+    - data_owner: Domain expertise identification
+    - source_system: Data origin and quality context
     
-    STAGE 1 SUCCESS METRICS:
-    ✅ AI accurately triages query complexity
-    ✅ Complex queries receive semantic enrichment
-    ✅ Contextual warnings are identified and passed forward
-    ✅ Final search query is optimized for precision discovery
+    STAGE 1 ENRICHMENT PROCESS:
+    ✅ Match query keywords against tags array
+    ✅ Extract key phrases from description and business_purpose
+    ✅ Identify domain context from data_owner
+    ✅ Assess data quality expectations from source_system
     
     🔍 STAGE 2: PRECISION SCHEMA DISCOVERY
     Use "Adaptive Schema Discovery Engine" with the Stage 1 results
     
-    The AI will execute the 4-step precision strategy:
-    1. HYBRID DATASET DISCOVERY: Search DatasetMetadata with alpha=0.75
-    2. PRECISION COLUMN FILTERING: Apply Filter.by_property("parentAthenaTableName").equal(table_name)
-    3. AI COLUMN RELEVANCE SCORING: Claude 4 scores column relevance 0-10
-    4. COMPOUND RELATIONSHIP DISCOVERY: Use Filter.any_of for bidirectional join discovery
+    The AI will execute precision discovery using ALL metadata:
+    
+    DATASET-LEVEL DISCOVERY:
+    - table_name & athena_table_name for exact references
+    - answerable_questions for pre-validated query patterns
+    - llm_hints for optimization strategies
+    - column_groups for logical column bundling
+    
+    COLUMN-LEVEL PRECISION:
+    - semantic_type for AI relevance scoring (identifier, business_date, etc.)
+    - business_name for human-friendly matching
+    - data_classification for security filtering
+    - is_primary_key & is_foreign_key_to_table/column for relationships
+    - athena_data_type for type safety
+    - sample_values for format validation
+    - description for semantic matching
     
     STAGE 2 SUCCESS METRICS:
-    ✅ Mandatory precision filtering applied to eliminate column confusion
-    ✅ AI relevance scoring prioritizes most important columns
-    ✅ Compound filtering discovers exact join relationships
-    ✅ Perfect "Blueprint JSON" created for SQL generation
+    ✅ Semantic type matching boosts relevance scores
+    ✅ Column groups return related fields together
+    ✅ Foreign key mappings enable automatic joins
+    ✅ Sample values validate data formats
     
-    🚀 ADAPTIVE EFFICIENCY INNOVATIONS:
-    - Query triage prevents over-analysis (3x speed improvement)
-    - Precision filtering eliminates schema confusion (90% accuracy gain)
-    - AI-driven scoring optimizes column selection
-    - Compound relationship discovery prevents join hallucination
-    
-    EXECUTION FLOW:
-    AI Triage → Conditional Enrichment → Hybrid Discovery → Precision Filtering → AI Scoring → Compound Joins → Perfect Blueprint
-    
-    This adaptive approach maximizes both efficiency and accuracy by adapting the depth of analysis to the complexity of the query.
+    This adaptive approach maximizes both efficiency and accuracy by leveraging every metadata field.
   
   expected_output: |
-    A comprehensive adaptive blueprint demonstrating the full pipeline:
+    A comprehensive adaptive blueprint with all metadata:
     {
       "stage_1_adaptive_context": {
         "original_query": "{question}",
@@ -54,188 +56,341 @@ adaptive_context_task:
           "complexity": "SIMPLE/COMPLEX",
           "reasoning": "AI explanation of complexity assessment",
           "requires_context_enrichment": true/false,
-          "key_entities": ["detected", "entities"]
+          "key_entities": ["detected", "entities"],
+          "matched_tags": ["Lead Management", "Marketing Analytics"],
+          "domain_context": "Marketing & Sales Team",
+          "source_system_identified": "Lead Management System"
         },
-        "final_search_query": "AI-enriched query or original if simple",
-        "contextual_warnings": ["Data quality warnings from BusinessContext"],
-        "enrichment_applied": true/false
+        "final_search_query": "AI-enriched query with domain terms",
+        "contextual_warnings": ["Data quality warnings from description/business_purpose"],
+        "enrichment_sources": {
+          "tags_matched": ["ROI Analysis", "Conversion Tracking"],
+          "business_purpose_extracted": "Key use cases identified",
+          "description_keywords": ["marketing funnel", "conversion rates"]
+        }
       },
       "stage_2_precision_discovery": {
         "datasets": [
           {
-            "table_name": "customer",
-            "athena_table_name": "amspoc3test.customer",
+            "table_name": "leads",
+            "athena_table_name": "leads",
             "relevance_score": 0.95,
-            "business_purpose": "Customer master data for contact queries"
+            "description": "Marketing funnel tracking from initial contact...",
+            "business_purpose": "Use this dataset to optimize marketing...",
+            "tags": ["Lead Management", "Marketing Analytics"],
+            "data_owner": "Marketing & Sales Team",
+            "source_system": "Lead Management System"
           }
         ],
         "columns_by_dataset": {
-          "amspoc3test.customer": [
+          "leads": [
             {
-              "column_name": "FirstName",
-              "data_type": "VARCHAR",
+              "column_name": "source_channel",
+              "athena_data_type": "string",
+              "semantic_type": "acquisition_channel",
+              "business_name": "Lead Source Channel",
+              "data_classification": "Internal",
+              "description": "Marketing channel that generated the lead",
+              "sample_values": ["Web", "Phone", "Referral"],
+              "is_primary_key": false,
+              "is_foreign_key": false,
               "relevance": 0.90,
-              "ai_relevance_score": 8.5,
+              "ai_relevance_score": 9.2,
               "precision_filtered": true,
-              "business_relevance": "Name column for customer identification"
+              "column_group": "lead_details"
+            },
+            {
+              "column_name": "conversion_status",
+              "athena_data_type": "string",
+              "semantic_type": "status_code",
+              "business_name": "Conversion Status",
+              "data_classification": "Internal",
+              "description": "Outcome of the sales process",
+              "sample_values": ["Won", "Lost", "Pending"],
+              "is_primary_key": false,
+              "is_foreign_key": false,
+              "relevance": 0.88,
+              "ai_relevance_score": 8.8,
+              "precision_filtered": true,
+              "column_group": "conversion_tracking"
             }
           ]
         },
+        "column_groups_discovered": {
+          "lead_details": ["lead_id", "lead_date", "source_channel", "campaign_name"],
+          "conversion_tracking": ["conversion_status", "converted_date", "lost_reason"],
+          "financial": ["quote_amount"]
+        },
         "relationships": [
           {
-            "from_table": "moves",
-            "from_column": "CustomerID",
-            "to_table": "customer",
-            "to_column": "ID",
+            "from_table": "leads",
+            "from_column": "location_id",
+            "to_table": "locations",
+            "to_column": "location_id",
             "join_type": "LEFT JOIN",
-            "discovered_via": "compound_filtering"
+            "discovered_via": "foreign_key_metadata",
+            "foreign_key_definition": "is_foreign_key_to_table: locations"
           }
         ],
+        "answerable_questions_matched": [
+          {
+            "question": "What is the conversion rate by channel?",
+            "sql_hint": "SELECT source_channel, COUNT(CASE WHEN conversion_status = 'Won' THEN 1 END) * 100.0 / COUNT(*) as conversion_rate FROM leads GROUP BY source_channel",
+            "category": "Conversion Analysis",
+            "relevance_to_query": 0.85
+          }
+        ],
+        "llm_hints_discovered": {
+          "preferred_aggregations": [
+            "COUNT(*) GROUP BY source_channel",
+            "COUNT(*) GROUP BY conversion_status"
+          ],
+          "common_filters": [
+            "WHERE conversion_status = 'Won'",
+            "WHERE lead_date >= DATE '2024-01-01'"
+          ],
+          "join_patterns": [
+            "JOIN jobs ON leads.lead_id = jobs.lead_id",
+            "JOIN locations ON leads.location_id = locations.location_id"
+          ],
+          "data_quirks": [
+            "Conversion rates vary by channel (Web=15%, Phone=25%, Referral=40%)",
+            "Converted_date is NULL for Lost or Pending leads",
+            "Peak lead volume in summer months (30% higher)"
+          ]
+        },
         "optimization_metrics": {
           "queries_executed": 4,
           "precision_filters_applied": 2,
-          "ai_scoring_applied": true,
-          "compound_filters_used": 1,
-          "efficiency_score": 0.92
+          "semantic_type_boosts_applied": 5,
+          "column_groups_utilized": 2,
+          "foreign_keys_discovered": 1,
+          "efficiency_score": 0.94
         }
       },
       "blueprint_ready": true,
-      "adaptive_success": "Pipeline adapted perfectly to query complexity"
+      "adaptive_success": "Pipeline leveraged all metadata fields for maximum precision"
     }
 
-# STAGE 3: Enhanced SQL Generation with Blueprint Interpretation
+# STAGE 3: Enhanced SQL Generation with Full Metadata
 adaptive_sql_generation_task:
   description: |
-    Execute SQL generation using the PERFECT ADAPTIVE BLUEPRINT from the Adaptive Context Analyst.
+    Execute SQL generation using the PERFECT ADAPTIVE BLUEPRINT with ALL metadata fields.
     
-    🧠 BLUEPRINT-DRIVEN SQL GENERATION:
+    🧠 BLUEPRINT-DRIVEN SQL GENERATION WITH COMPLETE METADATA:
     
-    Use "SQL Generation Tool" with:
-    - Question: '{question}'
-    - Adaptive Blueprint: Complete precision-filtered schema discovery results
-    - Contextual Warnings: Data quality alerts from BusinessContext analysis
-    - AI Column Scores: Relevance rankings for optimal column selection
+    Use "SQL Generation Tool" with comprehensive field utilization:
     
-    🎯 ENHANCED GENERATION PRIORITIES:
-    1. BLUEPRINT FIDELITY: Use table/column names EXACTLY as precision-filtered
-    2. WARNING COMPLIANCE: Apply all contextual warnings (e.g., INNER JOIN for data quality)
-    3. AI SCORE OPTIMIZATION: Prioritize columns with highest AI relevance scores
-    4. RELATIONSHIP PRECISION: Use discovered join paths exactly as compound-filtered
-    5. ATHENA OPTIMIZATION: Proper syntax, date casting, performance considerations
+    📊 COLUMN-LEVEL PRECISION:
+    - athena_data_type: Exact type casting (string, bigint, double)
+    - sample_values: Format-aware filtering and validation
+    - semantic_type: Function selection (e.g., date functions for business_date)
+    - business_name: Clear column aliases for readability
+    - data_classification: Apply security-aware queries
+    - is_primary_key/is_foreign_key: Optimized join strategies
+    - column_groups: Select related columns together
     
-    CRITICAL ADVANTAGES OF ADAPTIVE BLUEPRINT:
-    - No column guessing: Precision filtering found exact matches
-    - No join hallucination: Compound filtering discovered real relationships
-    - Contextual warnings prevent known data quality issues
-    - AI scoring guides optimal column selection
+    🎯 TABLE-LEVEL OPTIMIZATION (from llm_hints):
+    - preferred_aggregations: Proven GROUP BY patterns
+    - common_filters: Tested WHERE clause templates
+    - join_patterns: Verified JOIN syntax with cardinality
+    - data_quirks: Critical edge case handling
     
-    EXECUTION EXCELLENCE: Transform perfect intelligence into perfect SQL
+    📝 QUERY PATTERN REUSE (from answerable_questions):
+    - sql_hint: Adapt working SQL examples
+    - category: Apply category-specific optimizations
+    
+    🔧 GENERATION RULES:
+    1. EXACT TYPE CASTING: Use athena_data_type for all casts
+       Example: TRY_CAST(lead_date AS DATE) for string dates
+    
+    2. SAMPLE-BASED FILTERING: Match sample_values format exactly
+       Example: WHERE conversion_status IN ('Won', 'Lost', 'Pending')
+    
+    3. SEMANTIC OPTIMIZATION: Apply semantic_type logic
+       - identifier → use in JOINs and WHERE
+       - business_date → apply date functions
+       - financial_amount → use numeric aggregations
+       - status_code → categorical filtering
+    
+    4. QUIRK COMPLIANCE: Apply ALL data_quirks
+       Example: Add "AND converted_date IS NOT NULL" when needed
+    
+    5. COLUMN GROUP COHERENCE: Select related columns together
+       Example: When querying conversion, include all conversion_tracking columns
+    
+    6. FOREIGN KEY PRECISION: Use discovered relationships exactly
+       Example: JOIN locations ON leads.location_id = locations.location_id
+    
+    CRITICAL SUCCESS FACTORS:
+    - Zero ambiguity: Every field name from exact metadata
+    - Type safety: All operations match athena_data_type
+    - Pattern proven: Reuse sql_hints from similar questions
+    - Quirk aware: Handle all known data issues upfront
   
   expected_output: |
-    A single, validated, executable SQL query that perfectly interprets the adaptive blueprint:
-    - Uses precision-filtered table and column names exactly
-    - Applies all contextual warnings from BusinessContext analysis
-    - Leverages AI-scored columns for optimal SELECT statements
-    - Follows compound-filtered join relationships precisely
-    - Optimized for Athena with proper syntax and performance
+    A perfect SQL query leveraging ALL metadata fields:
+    
+    -- Query demonstrates full metadata utilization:
+    -- 1. Exact column names from discovery
+    -- 2. Proper type casting per athena_data_type
+    -- 3. Sample value-based filtering
+    -- 4. Semantic type-driven functions
+    -- 5. Business names as aliases
+    -- 6. Column group coherence
+    -- 7. Foreign key relationships
+    -- 8. LLM hint patterns applied
+    -- 9. Data quirk handling
+    -- 10. Security classification respected
+    
+    Example output structure:
+    SELECT 
+        source_channel AS "Lead Source Channel",  -- business_name alias
+        COUNT(*) AS total_leads,
+        COUNT(CASE WHEN conversion_status = 'Won' THEN 1 END) AS conversions,
+        ROUND(COUNT(CASE WHEN conversion_status = 'Won' THEN 1 END) * 100.0 / COUNT(*), 2) AS conversion_rate
+    FROM leads
+    WHERE 
+        TRY_CAST(lead_date AS DATE) >= DATE '2024-01-01'  -- athena_data_type casting
+        AND source_channel IN ('Web', 'Phone', 'Referral')  -- sample_values
+    GROUP BY source_channel  -- from preferred_aggregations
+    ORDER BY conversion_rate DESC
+    LIMIT 100;
 
-# STAGE 4A: Enhanced Athena Execution (unchanged)
+# STAGE 4A: Enhanced Athena Execution with Metadata Awareness
 adaptive_execution_task:
   description: |
-    Execute blueprint-generated SQL with performance monitoring and adaptive pipeline metrics.
+    Execute blueprint-generated SQL with metadata-aware monitoring.
     
-    🚀 ENHANCED EXECUTION WITH ADAPTIVE BENEFITS:
+    🚀 METADATA-ENHANCED EXECUTION:
     
-    Use "Athena Query Execution Tool" to:
-    - Execute the perfect SQL generated from precision-filtered blueprint
-    - Monitor performance improvements from adaptive pipeline
-    - Track higher success rates due to eliminated guesswork
-    - Provide error analysis (though errors should be dramatically reduced)
+    Use "Athena Query Execution Tool" with awareness of:
+    - athena_data_type: Anticipate casting performance
+    - data_quirks: Prepare for known data issues
+    - sample_values: Validate result formats
+    - data_classification: Apply appropriate security logging
     
-    📊 ADAPTIVE PIPELINE PERFORMANCE TRACKING:
-    - Higher execution success rate (90%+ improvement expected)
-    - Faster query execution (precision filtering reduces complexity)
-    - Lower error rates (blueprint eliminates hallucination)
-    - Enhanced cost efficiency (optimized queries)
-    
-    The adaptive pipeline should result in near-perfect execution success because
-    SQL is generated from precision-filtered, AI-scored, compound-discovered intelligence.
+    📊 ENHANCED MONITORING:
+    - Track type casting success rates
+    - Monitor quirk-related errors
+    - Validate results against sample_values
+    - Log data classification access
   
   expected_output: |
-    Enhanced execution results with adaptive pipeline performance metrics:
+    Enhanced execution results with metadata validation:
     {
       "status": "success",
       "execution_performance": {
         "execution_time_ms": 1234,
         "data_scanned_mb": 567.89,
-        "cost_estimate": "$0.0284",
-        "success_rate_improvement": "90% vs pre-adaptive pipeline"
+        "cost_estimate": "$0.0284"
       },
-      "adaptive_pipeline_benefits": {
-        "precision_filtering_applied": true,
-        "ai_scoring_used": true,
-        "compound_relationships_discovered": true,
-        "contextual_warnings_applied": true,
-        "blueprint_fidelity": "100%"
+      "metadata_validation": {
+        "type_casting_success": true,
+        "sample_value_match": true,
+        "quirk_handling_applied": ["NULL converted_date handling"],
+        "data_classification_logged": ["Internal", "Financial"]
       },
       "results": {
-        "columns": ["column1", "column2"],
-        "rows": [["value1", 123], ["value2", 456]],
-        "row_count": 2
+        "columns": ["source_channel", "total_leads", "conversions", "conversion_rate"],
+        "rows": [
+          ["Referral", 1250, 500, 40.0],
+          ["Phone", 2000, 500, 25.0],
+          ["Web", 3333, 500, 15.0]
+        ],
+        "row_count": 3
       }
     }
 
-# STAGE 4B: Enhanced Data Analysis with Adaptive Context
+# STAGE 4B: Enhanced Data Analysis with Full Context
 adaptive_data_analysis_task:
   description: |
-    Transform perfect query results into strategic intelligence using the full adaptive context.
+    Transform results into strategic intelligence using ALL metadata context.
     
-    📈 ENHANCED ANALYSIS WITH ADAPTIVE INTELLIGENCE:
+    📈 COMPREHENSIVE METADATA-DRIVEN ANALYSIS:
     
-    Use "Data Analysis and Forecasting Tool" with:
-    - Original question: '{question}'
-    - Perfect Athena results: High-quality data from precision-filtered queries
-    - Adaptive context: Rich business intelligence from Stage 1 analysis
-    - Blueprint metadata: Technical context from precision discovery
+    Use "Data Analysis and Forecasting Tool" leveraging:
     
-    🧠 ADAPTIVE INTELLIGENCE ADVANTAGES:
-    - Higher confidence in analysis (precision-filtered data)
-    - Richer business context (from BusinessContext enrichment)
-    - Strategic depth (from compound relationship understanding)
-    - Executive-ready insights (from AI-scored relevance)
+    🎯 BUSINESS CONTEXT (from dataset metadata):
+    - business_purpose: Frame strategic recommendations
+    - description: Provide industry context
+    - tags: Categorize insights appropriately
+    - data_owner: Tailor to stakeholder perspective
+    - source_system: Assess data reliability
     
-    📊 ENHANCED ANALYTICAL FRAMEWORK:
-    1. DIRECT STRATEGIC ANSWER: Higher confidence due to data precision
-    2. BUSINESS CONTEXT INTEGRATION: Leverage enriched business intelligence
-    3. ADAPTIVE INSIGHTS: Reference the precision discovery process
-    4. STRATEGIC RECOMMENDATIONS: Enhanced by compound relationship understanding
-    5. CONFIDENCE ASSESSMENT: Boosted by adaptive pipeline accuracy
+    📊 SEMANTIC UNDERSTANDING (from column metadata):
+    - business_name: Use business-friendly terminology
+    - semantic_type: Categorize metrics appropriately
+    - data_classification: Note sensitivity levels
+    - column_groups: Analyze related metrics together
     
-    STRATEGIC VALUE AMPLIFICATION: The adaptive pipeline provides you with
-    superior data quality and richer business context, enabling more strategic
-    and confident executive-ready intelligence.
+    💡 PATTERN INSIGHTS (from hints and questions):
+    - answerable_questions: Reference proven value cases
+    - llm_hints.data_quirks: Explain data limitations
+    - llm_hints.preferred_aggregations: Suggest further analysis
+    
+    🔍 QUALITY AWARENESS:
+    - sample_values: Validate result reasonableness
+    - data_quirks: Caveat insights appropriately
+    - foreign key relationships: Suggest cross-analysis
+    
+    ENHANCED ANALYTICAL FRAMEWORK:
+    1. Use business_purpose to frame executive summary
+    2. Apply semantic_type logic for metric interpretation
+    3. Reference answerable_questions for proven value
+    4. Incorporate data_quirks as analytical caveats
+    5. Suggest next analyses from column_groups
+    6. Tailor language to data_owner domain
   
   expected_output: |
-    Strategic intelligence enhanced by the adaptive pipeline:
+    Strategic intelligence leveraging complete metadata context:
     {
-      "direct_answer": "High-confidence answer based on precision-filtered data",
-      "adaptive_context_integration": {
-        "business_enrichment_applied": "How BusinessContext enriched the analysis",
-        "precision_discovery_benefits": "How exact schema discovery improved accuracy",
-        "ai_scoring_insights": "How column relevance scores enhanced analysis"
+      "direct_answer": "Based on the marketing funnel data, referral channels show 40% conversion rate, significantly outperforming Web (15%) and Phone (25%) channels.",
+      
+      "metadata_enhanced_insights": {
+        "business_context_applied": "Per the business_purpose of 'optimizing marketing ROI', referral channel investment should be prioritized",
+        "semantic_interpretation": "As acquisition_channel metrics, these represent top-of-funnel performance indicators",
+        "stakeholder_relevance": "For the Marketing & Sales Team (data_owner), this validates referral program investments",
+        "data_quality_context": "Data from Lead Management System with known summer seasonality (+30% volume)"
       },
+      
       "strategic_analysis": {
-        "business_impact": "Strategic implications with higher confidence",
-        "confidence_level": "HIGH (enhanced by adaptive pipeline)",
-        "precision_benefits": "Accuracy improvements from mandatory filtering",
+        "business_impact": "Shifting 20% of Web budget to Referral programs could yield 2.67x conversion improvement",
+        "confidence_level": "HIGH - based on Internal classification data with clear sample patterns",
+        "data_considerations": [
+          "Converted_date is NULL for Lost/Pending leads (from data_quirks)",
+          "Peak summer volumes may skew channel performance (30% higher)"
+        ],
+        "proven_value_reference": "Similar to 'What is the conversion rate by channel?' analysis pattern",
         "strategic_recommendations": [
-          "Recommendation 1 with adaptive intelligence backing",
-          "Recommendation 2 with precision-filtered data confidence"
+          "Increase referral incentives given 40% conversion rate",
+          "Analyze Phone channel for quality improvements (25% rate)",
+          "Investigate Web channel friction points (15% rate)",
+          "Cross-analyze with locations data (via location_id foreign key) for regional insights"
         ]
       },
-      "adaptive_pipeline_impact": {
-        "data_quality_improvement": "90% accuracy gain from precision filtering",
-        "business_context_enrichment": "Enhanced strategic depth from BusinessContext",
-        "confidence_amplification": "Higher certainty from AI-driven discovery"
+      
+      "next_analysis_suggestions": {
+        "from_column_groups": [
+          "Analyze 'financial' group: average quote_amount by channel",
+          "Examine 'conversion_tracking' group: lost_reason distribution"
+        ],
+        "from_answerable_questions": [
+          "What are the top reasons for lost leads?",
+          "What is the average quote amount by customer type?"
+        ],
+        "from_relationships": [
+          "Join with locations to find highest-converting regions",
+          "Connect to jobs table for post-conversion analysis"
+        ]
+      },
+      
+      "metadata_attribution": {
+        "insights_derived_from": {
+          "dataset_tags": ["Lead Management", "Marketing Analytics", "ROI Analysis"],
+          "semantic_types_used": ["acquisition_channel", "status_code"],
+          "llm_hints_applied": ["Conversion rates vary by channel pattern"],
+          "column_groups_analyzed": ["lead_details", "conversion_tracking"]
+        }
       }
     }
